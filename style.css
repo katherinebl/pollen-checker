@@ -1,0 +1,300 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2e7d32;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #1b5e20;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #4caf50;
+}
+
+.search-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.15);
+    margin-bottom: 30px;
+}
+
+.search-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 14px 20px;
+    border: 2px solid #e8f5e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: #4caf50;
+}
+
+button {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.search-btn:hover {
+    background: #43a047;
+    transform: translateY(-2px);
+}
+
+.location-btn {
+    background: #81c784;
+    color: white;
+    width: 100%;
+}
+
+.location-btn:hover {
+    background: #66bb6a;
+    transform: translateY(-2px);
+}
+
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e8f5e9;
+}
+
+.divider span {
+    background: white;
+    padding: 0 15px;
+    color: #81c784;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+.results-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.15);
+    display: none;
+}
+
+.results-card.active {
+    display: block;
+}
+
+.location-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e8f5e9;
+}
+
+.location-icon {
+    font-size: 1.5rem;
+}
+
+.location-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1b5e20;
+}
+
+.pollen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.pollen-card {
+    background: #f9fbe7;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 5px solid;
+    transition: transform 0.3s;
+}
+
+.pollen-card:hover {
+    transform: translateY(-3px);
+}
+
+.pollen-card.level-low {
+    border-left-color: #4caf50;
+}
+
+.pollen-card.level-moderate {
+    border-left-color: #ff9800;
+}
+
+.pollen-card.level-high {
+    border-left-color: #ff5722;
+}
+
+.pollen-card.level-very-high {
+    border-left-color: #f44336;
+}
+
+.pollen-type {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2e7d32;
+}
+
+.pollen-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.pollen-value.low {
+    color: #4caf50;
+}
+
+.pollen-value.moderate {
+    color: #ff9800;
+}
+
+.pollen-value.high {
+    color: #ff5722;
+}
+
+.pollen-value.very-high {
+    color: #f44336;
+}
+
+.pollen-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.pollen-label.low {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.pollen-label.moderate {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.pollen-label.high {
+    background: #fbe9e7;
+    color: #bf360c;
+}
+
+.pollen-label.very-high {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.pollen-recommendation {
+    font-size: 0.85rem;
+    color: #558b2f;
+    line-height: 1.4;
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: none;
+}
+
+.error-message.active {
+    display: block;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #4caf50;
+    display: none;
+}
+
+.loading.active {
+    display: block;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e8f5e9;
+    border-top: 4px solid #4caf50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .pollen-grid {
+        grid-template-columns: 1fr;
+    }
+}

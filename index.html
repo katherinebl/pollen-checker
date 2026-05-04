@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pollen Checker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌸 Pollen Checker</h1>
+            <p class="subtitle">Check pollen levels in your area</p>
+        </header>
+
+        <div class="search-card">
+            <div class="search-box">
+                <input type="text" id="cityInput" placeholder="Enter city name..." />
+                <button class="search-btn" onclick="searchCity()">Search</button>
+            </div>
+            <div class="divider">
+                <span>or</span>
+            </div>
+            <button class="location-btn" onclick="useMyLocation()">📍 Use my location</button>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching pollen data...</p>
+        </div>
+
+        <div class="results-card" id="resultsCard">
+            <div class="location-header">
+                <span class="location-icon">📍</span>
+                <span class="location-name" id="locationName"></span>
+            </div>
+            <div class="pollen-grid" id="pollenGrid"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
