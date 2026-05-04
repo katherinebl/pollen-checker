@@ -1,18 +1,103 @@
+let currentLang = 'en';
+
+const translations = {
+    en: {
+        subtitle: 'Check pollen levels in your area',
+        placeholder: 'Enter city name...',
+        search: 'Search',
+        or: 'or',
+        location: '📍 Use my location',
+        loading: 'Fetching pollen data...',
+        yourLocation: 'Your Location',
+        pollenTypes: {
+            alder_pollen: 'Alder',
+            birch_pollen: 'Birch',
+            grass_pollen: 'Grass',
+            mugwort_pollen: 'Mugwort',
+            olive_pollen: 'Olive',
+            ragweed_pollen: 'Ragweed'
+        },
+        levels: {
+            low: { label: 'Low', recommendation: 'Pollen levels are low. Great day for outdoor activities!' },
+            moderate: { label: 'Moderate', recommendation: 'Moderate pollen levels. Consider limiting prolonged outdoor exposure.' },
+            high: { label: 'High', recommendation: 'High pollen levels. Limit outdoor activities, keep windows closed.' },
+            'very-high': { label: 'Very High', recommendation: 'Very high pollen levels. Avoid outdoor activities, use air purifier indoors.' }
+        },
+        errors: {
+            enterCity: 'Please enter a city name',
+            cityNotFound: 'City not found. Please try another name.',
+            fetchLocation: 'Failed to fetch location data. Please try again.',
+            fetchPollen: 'Failed to fetch pollen data. Please try again.',
+            noGeolocation: 'Geolocation is not supported by your browser',
+            locationError: 'Unable to retrieve your location. Please enable location services or search by city name.'
+        }
+    },
+    es: {
+        subtitle: 'Consulta los niveles de polen en tu zona',
+        placeholder: 'Ingresa el nombre de la ciudad...',
+        search: 'Buscar',
+        or: 'o',
+        location: '📍 Usar mi ubicación',
+        loading: 'Obteniendo datos de polen...',
+        yourLocation: 'Tu ubicación',
+        pollenTypes: {
+            alder_pollen: 'Alerce',
+            birch_pollen: 'Abedul',
+            grass_pollen: 'Hierba',
+            mugwort_pollen: 'Artemisa',
+            olive_pollen: 'Olivo',
+            ragweed_pollen: 'Ambrosía'
+        },
+        levels: {
+            low: { label: 'Bajo', recommendation: 'Los niveles de polen son bajos. ¡Excelente día para actividades al aire libre!' },
+            moderate: { label: 'Moderado', recommendation: 'Niveles de polen moderados. Considera limitar la exposición prolongada al aire libre.' },
+            high: { label: 'Alto', recommendation: 'Niveles de polen altos. Limita las actividades al aire libre, mantén las ventanas cerradas.' },
+            'very-high': { label: 'Muy alto', recommendation: 'Niveles de polen muy altos. Evita actividades al aire libre, usa purificador de aire en interiores.' }
+        },
+        errors: {
+            enterCity: 'Por favor ingresa el nombre de una ciudad',
+            cityNotFound: 'Ciudad no encontrada. Por favor intenta con otro nombre.',
+            fetchLocation: 'Error al obtener datos de ubicación. Por favor intenta de nuevo.',
+            fetchPollen: 'Error al obtener datos de polen. Por favor intenta de nuevo.',
+            noGeolocation: 'La geolocalización no es compatible con tu navegador',
+            locationError: 'No se pudo obtener tu ubicación. Por favor habilita los servicios de ubicación o busca por nombre de ciudad.'
+        }
+    }
+};
+
 const pollenTypes = [
-    { key: 'alder_pollen', name: 'Alder' },
-    { key: 'birch_pollen', name: 'Birch' },
-    { key: 'grass_pollen', name: 'Grass' },
-    { key: 'mugwort_pollen', name: 'Mugwort' },
-    { key: 'olive_pollen', name: 'Olive' },
-    { key: 'ragweed_pollen', name: 'Ragweed' }
+    { key: 'alder_pollen' },
+    { key: 'birch_pollen' },
+    { key: 'grass_pollen' },
+    { key: 'mugwort_pollen' },
+    { key: 'olive_pollen' },
+    { key: 'ragweed_pollen' }
 ];
 
 function getLevel(value) {
-    if (value === null || value === undefined) return { level: 'low', label: 'Low', recommendation: 'No data available' };
-    if (value <= 10) return { level: 'low', label: 'Low', recommendation: 'Pollen levels are low. Great day for outdoor activities!' };
-    if (value <= 30) return { level: 'moderate', label: 'Moderate', recommendation: 'Moderate pollen levels. Consider limiting prolonged outdoor exposure.' };
-    if (value <= 60) return { level: 'high', label: 'High', recommendation: 'High pollen levels. Limit outdoor activities, keep windows closed.' };
-    return { level: 'very-high', label: 'Very High', recommendation: 'Very high pollen levels. Avoid outdoor activities, use air purifier indoors.' };
+    if (value === null || value === undefined) return { level: 'low', label: translations[currentLang].levels.low.label, recommendation: translations[currentLang].levels.low.recommendation };
+    if (value <= 10) return { level: 'low', label: translations[currentLang].levels.low.label, recommendation: translations[currentLang].levels.low.recommendation };
+    if (value <= 30) return { level: 'moderate', label: translations[currentLang].levels.moderate.label, recommendation: translations[currentLang].levels.moderate.recommendation };
+    if (value <= 60) return { level: 'high', label: translations[currentLang].levels.high.label, recommendation: translations[currentLang].levels.high.recommendation };
+    return { level: 'very-high', label: translations[currentLang].levels['very-high'].label, recommendation: translations[currentLang].levels['very-high'].recommendation };
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    updateUIText();
+}
+
+function updateUIText() {
+    const t = translations[currentLang];
+    document.getElementById('subtitle').textContent = t.subtitle;
+    document.getElementById('cityInput').placeholder = t.placeholder;
+    document.getElementById('searchBtn').textContent = t.search;
+    document.getElementById('or').textContent = t.or;
+    document.getElementById('locationBtn').textContent = t.location;
+    document.getElementById('loadingText').textContent = t.loading;
 }
 
 function showError(message) {
@@ -29,7 +114,7 @@ function showLoading(show) {
 async function searchCity() {
     const city = document.getElementById('cityInput').value.trim();
     if (!city) {
-        showError('Please enter a city name');
+        showError(translations[currentLang].errors.enterCity);
         return;
     }
 
@@ -37,11 +122,11 @@ async function searchCity() {
     document.getElementById('resultsCard').classList.remove('active');
 
     try {
-        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=${currentLang}&format=json`);
         const geoData = await geoResponse.json();
 
         if (!geoData.results || geoData.results.length === 0) {
-            showError('City not found. Please try another name.');
+            showError(translations[currentLang].errors.cityNotFound);
             showLoading(false);
             return;
         }
@@ -49,7 +134,7 @@ async function searchCity() {
         const location = geoData.results[0];
         await fetchPollenData(location.latitude, location.longitude, location.name);
     } catch (error) {
-        showError('Failed to fetch location data. Please try again.');
+        showError(translations[currentLang].errors.fetchLocation);
         showLoading(false);
     }
 }
@@ -61,7 +146,7 @@ async function fetchPollenData(lat, lon, locationName) {
 
         displayResults(data, locationName);
     } catch (error) {
-        showError('Failed to fetch pollen data. Please try again.');
+        showError(translations[currentLang].errors.fetchPollen);
     } finally {
         showLoading(false);
     }
@@ -84,11 +169,12 @@ function displayResults(data, locationName) {
     pollenTypes.forEach(type => {
         const value = hourlyData[type.key][index];
         const { level, label, recommendation } = getLevel(value);
+        const typeName = translations[currentLang].pollenTypes[type.key];
 
         const card = document.createElement('div');
         card.className = `pollen-card level-${level}`;
         card.innerHTML = `
-            <div class="pollen-type">${type.name}</div>
+            <div class="pollen-type">${typeName}</div>
             <div class="pollen-value ${level}">${value !== null ? value : 'N/A'}</div>
             <div class="pollen-label ${level}">${label}</div>
             <div class="pollen-recommendation">${recommendation}</div>
@@ -101,7 +187,7 @@ function displayResults(data, locationName) {
 
 function useMyLocation() {
     if (!navigator.geolocation) {
-        showError('Geolocation is not supported by your browser');
+        showError(translations[currentLang].errors.noGeolocation);
         return;
     }
 
@@ -111,10 +197,10 @@ function useMyLocation() {
     navigator.geolocation.getCurrentPosition(
         async (position) => {
             const { latitude, longitude } = position.coords;
-            await fetchPollenData(latitude, longitude, 'Your Location');
+            await fetchPollenData(latitude, longitude, translations[currentLang].yourLocation);
         },
         (error) => {
-            showError('Unable to retrieve your location. Please enable location services or search by city name.');
+            showError(translations[currentLang].errors.locationError);
             showLoading(false);
         }
     );

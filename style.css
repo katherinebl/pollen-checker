@@ -23,6 +23,34 @@ header {
     padding-top: 20px;
 }
 
+.lang-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.lang-btn {
+    padding: 8px 20px;
+    border: 2px solid #4caf50;
+    background: white;
+    color: #4caf50;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.lang-btn:hover {
+    background: #e8f5e9;
+}
+
+.lang-btn.active {
+    background: #4caf50;
+    color: white;
+}
+
 h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;

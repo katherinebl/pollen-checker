@@ -9,25 +9,29 @@
 <body>
     <div class="container">
         <header>
+            <div class="lang-toggle">
+                <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+                <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">ES</button>
+            </div>
             <h1>🌸 Pollen Checker</h1>
-            <p class="subtitle">Check pollen levels in your area</p>
+            <p class="subtitle" id="subtitle">Check pollen levels in your area</p>
         </header>
 
         <div class="search-card">
             <div class="search-box">
                 <input type="text" id="cityInput" placeholder="Enter city name..." />
-                <button class="search-btn" onclick="searchCity()">Search</button>
+                <button class="search-btn" id="searchBtn" onclick="searchCity()">Search</button>
             </div>
             <div class="divider">
-                <span>or</span>
+                <span id="or">or</span>
             </div>
-            <button class="location-btn" onclick="useMyLocation()">📍 Use my location</button>
+            <button class="location-btn" id="locationBtn" onclick="useMyLocation()">📍 Use my location</button>
             <div class="error-message" id="errorMessage"></div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Fetching pollen data...</p>
+            <p id="loadingText">Fetching pollen data...</p>
         </div>
 
         <div class="results-card" id="resultsCard">
