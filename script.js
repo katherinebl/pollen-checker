@@ -217,7 +217,7 @@ async function searchCity() {
 
 async function fetchPollenData(lat, lon, locationName) {
     try {
-        const response = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=1`);
+        const response = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&past_days=6&forecast_days=1`);
         const data = await response.json();
 
         displayResults(data, locationName);
@@ -242,6 +242,73 @@ function formatTimestamp() {
     }
 }
 
+function createSparkline(hourlyData, pollenKey, level) {
+    const colorMap = {
+        low: '#2E7D32',
+        moderate: '#E65100',
+        high: '#BF360C',
+        'very-high': '#C62828'
+    };
+    
+    const color = colorMap[level];
+    const values = hourlyData[pollenKey];
+    
+    // Get last 7 days of data (one value per day at the same hour)
+    const currentHour = new Date().getHours();
+    const dailyValues = [];
+    
+    for (let i = 0; i < 7; i++) {
+        const targetIndex = values.length - 1 - ((6 - i) * 24);
+        if (targetIndex >= 0 && targetIndex < values.length) {
+            dailyValues.push(values[targetIndex]);
+        }
+    }
+    
+    // Filter out null values
+    const validValues = dailyValues.filter(v => v !== null && v !== undefined);
+    
+    if (validValues.length < 2) {
+        return '';
+    }
+    
+    const max = Math.max(...validValues);
+    const min = Math.min(...validValues);
+    const range = max - min || 1;
+    
+    const width = 100;
+    const height = 32;
+    const padding = 2;
+    
+    const points = validValues.map((val, i) => {
+        const x = padding + (i / (validValues.length - 1)) * (width - 2 * padding);
+        const y = height - padding - ((val - min) / range) * (height - 2 * padding);
+        return `${x},${y}`;
+    }).join(' ');
+    
+    const lastPointIndex = validValues.length - 1;
+    const lastX = padding + (lastPointIndex / (validValues.length - 1)) * (width - 2 * padding);
+    const lastY = height - padding - ((validValues[lastPointIndex] - min) / range) * (height - 2 * padding);
+    
+    return `
+        <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+            <polyline
+                fill="none"
+                stroke="${color}"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                points="${points}"
+            />
+            <circle
+                cx="${lastX}"
+                cy="${lastY}"
+                r="3"
+                fill="${color}"
+            />
+        </svg>
+    `;
+}
+
 function displayResults(data, locationName) {
     document.getElementById('locationName').textContent = locationName;
     document.getElementById('lastUpdated').textContent = formatTimestamp();
@@ -262,6 +329,7 @@ function displayResults(data, locationName) {
         const { level, label } = getLevel(value);
         const typeName = translations[currentLang].pollenTypes[type.key];
         const recommendation = translations[currentLang].recommendations[type.key][level];
+        const sparkline = createSparkline(hourlyData, type.key, level);
 
         const card = document.createElement('div');
         card.className = `pollen-card level-${level}`;
@@ -269,6 +337,7 @@ function displayResults(data, locationName) {
             <div class="pollen-type">${typeName}</div>
             <div class="pollen-value ${level}">${value !== null ? value : 'N/A'}</div>
             <div class="pollen-label ${level}">${label}</div>
+            ${sparkline}
             <div class="pollen-recommendation">${recommendation}</div>
         `;
         grid.appendChild(card);
