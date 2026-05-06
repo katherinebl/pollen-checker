@@ -1,4 +1,6 @@
 let currentLang = 'en';
+let lastPollenData = null;
+let lastLocationName = null;
 
 const translations = {
     en: {
@@ -164,6 +166,11 @@ function setLanguage(lang) {
         btn.classList.toggle('active', btn.dataset.lang === lang);
     });
     updateUIText();
+    
+    // Re-render results if they are currently displayed
+    if (lastPollenData && lastLocationName) {
+        displayResults(lastPollenData, lastLocationName);
+    }
 }
 
 function updateUIText() {
@@ -219,6 +226,10 @@ async function fetchPollenData(lat, lon, locationName) {
     try {
         const response = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&past_days=6&forecast_days=1`);
         const data = await response.json();
+
+        // Save for re-rendering on language change
+        lastPollenData = data;
+        lastLocationName = locationName;
 
         displayResults(data, locationName);
     } catch (error) {
