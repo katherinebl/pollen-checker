@@ -197,7 +197,21 @@ function useMyLocation() {
     navigator.geolocation.getCurrentPosition(
         async (position) => {
             const { latitude, longitude } = position.coords;
-            await fetchPollenData(latitude, longitude, translations[currentLang].yourLocation);
+            
+            try {
+                const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=${currentLang}`);
+                const geoData = await geoResponse.json();
+                
+                const locationName = geoData.address && geoData.address.city 
+                    ? geoData.address.city 
+                    : (geoData.address && geoData.address.town 
+                        ? geoData.address.town 
+                        : translations[currentLang].yourLocation);
+                
+                await fetchPollenData(latitude, longitude, locationName);
+            } catch (error) {
+                await fetchPollenData(latitude, longitude, translations[currentLang].yourLocation);
+            }
         },
         (error) => {
             showError(translations[currentLang].errors.locationError);
