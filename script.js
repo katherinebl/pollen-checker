@@ -152,8 +152,23 @@ async function fetchPollenData(lat, lon, locationName) {
     }
 }
 
+function formatTimestamp() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    
+    if (currentLang === 'en') {
+        return `Today at ${displayHours}:${minutes} ${period}`;
+    } else {
+        return `Hoy a las ${displayHours}:${minutes} ${period}`;
+    }
+}
+
 function displayResults(data, locationName) {
     document.getElementById('locationName').textContent = locationName;
+    document.getElementById('lastUpdated').textContent = formatTimestamp();
     const grid = document.getElementById('pollenGrid');
     grid.innerHTML = '';
 

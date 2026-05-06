@@ -201,6 +201,12 @@ button {
     color: var(--text-primary);
 }
 
+.last-updated {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
 .pollen-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
