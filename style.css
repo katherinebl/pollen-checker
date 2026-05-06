@@ -214,10 +214,8 @@ button {
 }
 
 .pollen-card {
-    background: #fafafa;
     border-radius: 12px;
     padding: 20px;
-    border-left: 4px solid;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -227,26 +225,25 @@ button {
 }
 
 .pollen-card.level-low {
-    border-left-color: #4CAF50;
+    background: #EAF3DE;
 }
 
 .pollen-card.level-moderate {
-    border-left-color: #FF9800;
+    background: #FAEEDA;
 }
 
 .pollen-card.level-high {
-    border-left-color: #FF5722;
+    background: #FCEBEB;
 }
 
 .pollen-card.level-very-high {
-    border-left-color: #f44336;
+    background: #FFEBEE;
 }
 
 .pollen-type {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 10px;
-    color: var(--text-primary);
 }
 
 .pollen-value {
@@ -256,19 +253,19 @@ button {
 }
 
 .pollen-value.low {
-    color: #4CAF50;
+    color: #2E7D32;
 }
 
 .pollen-value.moderate {
-    color: #FF9800;
+    color: #E65100;
 }
 
 .pollen-value.high {
-    color: #FF5722;
+    color: #BF360C;
 }
 
 .pollen-value.very-high {
-    color: #f44336;
+    color: #C62828;
 }
 
 .pollen-label {
@@ -281,28 +278,43 @@ button {
 }
 
 .pollen-label.low {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgba(46, 125, 50, 0.15);
+    color: #2E7D32;
 }
 
 .pollen-label.moderate {
-    background: #fff3e0;
-    color: #e65100;
+    background: rgba(230, 81, 0, 0.15);
+    color: #E65100;
 }
 
 .pollen-label.high {
-    background: #fbe9e7;
-    color: #bf360c;
+    background: rgba(191, 54, 12, 0.15);
+    color: #BF360C;
 }
 
 .pollen-label.very-high {
-    background: #ffebee;
-    color: #c62828;
+    background: rgba(198, 40, 40, 0.15);
+    color: #C62828;
+}
+
+.pollen-card.level-low .pollen-recommendation {
+    color: #2E7D32;
+}
+
+.pollen-card.level-moderate .pollen-recommendation {
+    color: #E65100;
+}
+
+.pollen-card.level-high .pollen-recommendation {
+    color: #BF360C;
+}
+
+.pollen-card.level-very-high .pollen-recommendation {
+    color: #C62828;
 }
 
 .pollen-recommendation {
     font-size: 0.85rem;
-    color: var(--text-secondary);
     line-height: 1.4;
 }
 
