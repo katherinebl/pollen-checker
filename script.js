@@ -10,12 +10,12 @@ const translations = {
         loading: 'Fetching pollen data...',
         yourLocation: 'Your Location',
         pollenTypes: {
-            alder_pollen: 'Alder',
-            birch_pollen: 'Birch',
-            grass_pollen: 'Grass',
-            mugwort_pollen: 'Mugwort',
-            olive_pollen: 'Olive',
-            ragweed_pollen: 'Ragweed'
+            alder_pollen: '🌾 Alder',
+            birch_pollen: '🌳 Birch',
+            grass_pollen: '🌿 Grass',
+            mugwort_pollen: '🌼 Mugwort',
+            olive_pollen: '🫚 Olive',
+            ragweed_pollen: '🌱 Ragweed'
         },
         levels: {
             low: { label: 'Low' },
@@ -79,12 +79,12 @@ const translations = {
         loading: 'Obteniendo datos de polen...',
         yourLocation: 'Tu ubicación',
         pollenTypes: {
-            alder_pollen: 'Alerce',
-            birch_pollen: 'Abedul',
-            grass_pollen: 'Hierba',
-            mugwort_pollen: 'Artemisa',
-            olive_pollen: 'Olivo',
-            ragweed_pollen: 'Ambrosía'
+            alder_pollen: '🌾 Alerce',
+            birch_pollen: '🌳 Abedul',
+            grass_pollen: '🌿 Hierba',
+            mugwort_pollen: '🌼 Artemisa',
+            olive_pollen: '🫚 Olivo',
+            ragweed_pollen: '🌱 Ambrosía'
         },
         levels: {
             low: { label: 'Bajo' },
