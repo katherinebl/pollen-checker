@@ -166,7 +166,7 @@ function setLanguage(lang) {
         btn.classList.toggle('active', btn.dataset.lang === lang);
     });
     updateUIText();
-    
+
     // Re-render results if they are currently displayed
     if (lastPollenData && lastLocationName) {
         displayResults(lastPollenData, lastLocationName);
@@ -245,7 +245,7 @@ function formatTimestamp() {
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHours = hours % 12 || 12;
-    
+
     if (currentLang === 'en') {
         return `Today at ${displayHours}:${minutes} ${period}`;
     } else {
@@ -260,46 +260,46 @@ function createSparkline(hourlyData, pollenKey, level) {
         high: '#BF360C',
         'very-high': '#C62828'
     };
-    
+
     const color = colorMap[level];
     const values = hourlyData[pollenKey];
-    
+
     // Get last 7 days of data (one value per day at the same hour)
     const currentHour = new Date().getHours();
     const dailyValues = [];
-    
+
     for (let i = 0; i < 7; i++) {
         const targetIndex = values.length - 1 - ((6 - i) * 24);
         if (targetIndex >= 0 && targetIndex < values.length) {
             dailyValues.push(values[targetIndex]);
         }
     }
-    
+
     // Filter out null values
     const validValues = dailyValues.filter(v => v !== null && v !== undefined);
-    
+
     if (validValues.length < 2) {
         return '';
     }
-    
+
     const max = Math.max(...validValues);
     const min = Math.min(...validValues);
     const range = max - min || 1;
-    
+
     const width = 100;
     const height = 32;
     const padding = 2;
-    
+
     const points = validValues.map((val, i) => {
         const x = padding + (i / (validValues.length - 1)) * (width - 2 * padding);
         const y = height - padding - ((val - min) / range) * (height - 2 * padding);
         return `${x},${y}`;
     }).join(' ');
-    
+
     const lastPointIndex = validValues.length - 1;
     const lastX = padding + (lastPointIndex / (validValues.length - 1)) * (width - 2 * padding);
     const lastY = height - padding - ((validValues[lastPointIndex] - min) / range) * (height - 2 * padding);
-    
+
     return `
         <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
             <polyline
@@ -369,17 +369,17 @@ function useMyLocation() {
     navigator.geolocation.getCurrentPosition(
         async (position) => {
             const { latitude, longitude } = position.coords;
-            
+
             try {
                 const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=${currentLang}`);
                 const geoData = await geoResponse.json();
-                
-                const locationName = geoData.address && geoData.address.city 
-                    ? geoData.address.city 
-                    : (geoData.address && geoData.address.town 
-                        ? geoData.address.town 
+
+                const locationName = geoData.address && geoData.address.city
+                    ? geoData.address.city
+                    : (geoData.address && geoData.address.town
+                        ? geoData.address.town
                         : translations[currentLang].yourLocation);
-                
+
                 await fetchPollenData(latitude, longitude, locationName);
             } catch (error) {
                 await fetchPollenData(latitude, longitude, translations[currentLang].yourLocation);

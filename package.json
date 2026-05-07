@@ -1,0 +1,16 @@
+{
+  "name": "pollen-checker",
+  "version": "1.0.0",
+  "description": "Check pollen levels in your area",
+  "main": "script.js",
+  "scripts": {
+    "dev": "live-server",
+    "start": "live-server"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
