@@ -1,4 +1,5 @@
-let currentLang = 'en';
+const userLang = navigator.language || navigator.userLanguage;
+let currentLang = userLang.startsWith('es') ? 'es' : 'en';
 let lastPollenData = null;
 let lastLocationName = null;
 
@@ -396,3 +397,5 @@ function useMyLocation() {
 document.getElementById('cityInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') searchCity();
 });
+// Initialize UI with detected language
+setLanguage(currentLang);
