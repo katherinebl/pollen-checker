@@ -3,48 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#285d53">
+    <meta name="description" content="Check local pollen concentrations and species-level risk with Pollen Checker. Available in English and Spanish.">
     <title>Pollen Checker</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="lang-toggle">
-                <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
-                <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">ES</button>
-            </div>
-            <h1>🌾 Pollen Checker</h1>
-            <p class="subtitle" id="subtitle">Check pollen levels in your area</p>
-        </header>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+    <!-- Shared decorative SVGs keep the botanical artwork small and dependency-free. -->
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-search" viewBox="0 0 24 24">
+            <circle cx="10.8" cy="10.8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m15.5 15.5 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="icon-location" viewBox="0 0 24 24">
+            <path d="M19 10c0 4.7-7 10-7 10s-7-5.3-7-10a7 7 0 1 1 14 0Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <circle cx="12" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        </symbol>
+        <symbol id="icon-arrow" viewBox="0 0 20 20">
+            <path d="M4 10h11M11 6l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </symbol>
+        <symbol id="botanical-branch" viewBox="0 0 160 160">
+            <circle class="botanical-disc" cx="80" cy="80" r="68"/>
+            <path d="M49 121c20-17 35-39 47-78" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M64 100c-15 0-25-8-26-20 14-2 25 5 26 20ZM78 78c-12-5-18-16-14-27 13 2 20 13 14 27ZM85 68c14 0 25-8 27-20-14-3-26 5-27 20ZM71 91c14 2 25-4 30-16-13-5-26 2-30 16Z" fill="currentColor"/>
+            <g fill="currentColor"><circle cx="103" cy="83" r="4"/><circle cx="108" cy="94" r="3"/><circle cx="95" cy="98" r="3.5"/></g>
+        </symbol>
+        <symbol id="botanical-grass" viewBox="0 0 160 160">
+            <circle class="botanical-disc" cx="80" cy="80" r="68"/>
+            <path d="M52 124c9-27 20-47 33-67M77 124c1-27 7-52 18-76M98 124c-3-24-1-44 5-62" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M66 91c-9 0-15-4-20-12 9-2 16 2 20 12ZM89 72c-8-1-13-6-16-14 8 0 14 5 16 14ZM101 83c8-2 15-7 18-15-9-1-15 4-18 15Z" fill="currentColor"/>
+            <path d="M42 74h7M46 68v12M112 53h7M115.5 49v8" stroke="currentColor" stroke-width="2"/>
+        </symbol>
+        <symbol id="botanical-flower" viewBox="0 0 160 160">
+            <circle class="botanical-disc" cx="80" cy="80" r="68"/>
+            <path d="M80 126V77" stroke="currentColor" stroke-width="3"/>
+            <g fill="currentColor">
+                <path d="M80 102c-16-1-25-9-28-22 15-1 26 6 28 22ZM81 113c14-2 24-10 28-23-15-1-25 7-28 23Z"/>
+                <ellipse cx="80" cy="61" rx="12" ry="21"/>
+                <ellipse cx="80" cy="61" rx="12" ry="21" transform="rotate(60 80 61)"/>
+                <ellipse cx="80" cy="61" rx="12" ry="21" transform="rotate(120 80 61)"/>
+            </g>
+            <circle class="botanical-disc" cx="80" cy="61" r="7"/>
+        </symbol>
+    </svg>
 
-        <div class="search-card">
-            <div class="search-box">
-                <input type="text" id="cityInput" placeholder="Enter city name..." />
-                <button class="search-btn" id="searchBtn" onclick="searchCity()">Search</button>
-            </div>
-            <div class="divider">
-                <span id="or">or</span>
-            </div>
-            <button class="location-btn" id="locationBtn" onclick="useMyLocation()">📍 Use my location</button>
-            <div class="error-message" id="errorMessage"></div>
+    <header class="site-header">
+        <a class="brand" href="./">
+            <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>Pollen Checker</span>
+        </a>
+        <div class="lang-toggle" role="group" aria-label="Language" id="languageControl">
+            <button class="lang-btn active" type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="true">EN</button>
+            <button class="lang-btn" type="button" data-lang="es" lang="es" aria-label="Español" aria-pressed="false">ES</button>
         </div>
+    </header>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p id="loadingText">Fetching pollen data...</p>
-        </div>
-
-        <div class="results-card" id="resultsCard">
-            <div class="location-header">
-                <span class="location-icon">📍</span>
-                <span class="location-name" id="locationName"></span>
+    <main class="dashboard" id="main">
+        <section class="search-panel" aria-labelledby="heroTitle">
+            <div class="hero-copy">
+                <p class="eyebrow" data-i18n="heroEyebrow">A little closer to nature</p>
+                <h1 id="heroTitle"><span data-i18n="heroTitle">What are you</span><br><em data-i18n="heroAccent">breathing today?</em></h1>
+                <p class="hero-description" id="subtitle">Check pollen levels in your area</p>
             </div>
-            <div class="last-updated" id="lastUpdated"></div>
-            <div class="pollen-grid" id="pollenGrid"></div>
-        </div>
-    </div>
 
-    <script src="script.js"></script>
+            <div class="search-area">
+                <label class="search-label" for="cityInput" data-i18n="searchLabel">Find a location</label>
+                <form class="search-box" id="searchForm">
+                    <svg class="search-icon" aria-hidden="true"><use href="#icon-search"/></svg>
+                    <input type="text" id="cityInput" name="city" placeholder="Enter city name..." autocomplete="address-level2" enterkeyhint="search" aria-describedby="errorMessage">
+                    <button class="search-btn" id="searchBtn" type="submit">
+                        <span class="sr-only" data-i18n="search">Search</span>
+                        <svg aria-hidden="true"><use href="#icon-arrow"/></svg>
+                    </button>
+                </form>
+                <div class="location-option">
+                    <span id="or">or</span>
+                    <button class="location-btn" id="locationBtn" type="button">
+                        <svg aria-hidden="true"><use href="#icon-location"/></svg>
+                        <span data-i18n="location">Use my location</span>
+                    </button>
+                </div>
+                <div class="error-message" id="errorMessage" role="alert" aria-atomic="true"></div>
+            </div>
+
+            <div class="panel-note">
+                <svg class="panel-botanical" aria-hidden="true"><use href="#botanical-branch"/></svg>
+                <p data-i18n="panelNote">Six pollen species. One clearer picture.</p>
+            </div>
+        </section>
+
+        <section class="results" aria-label="Pollen report" id="report">
+            <div class="empty-state" id="emptyState">
+                <svg class="empty-botanical" aria-hidden="true"><use href="#botanical-grass"/></svg>
+                <p class="eyebrow" data-i18n="localReport">Your local pollen report</p>
+                <h2 data-i18n="emptyTitle">A breath of clarity.</h2>
+                <p data-i18n="emptyDescription">Search for a city or use your location to explore pollen concentrations near you.</p>
+            </div>
+
+            <div class="loading" id="loading" role="status" aria-atomic="true">
+                <div class="spinner" aria-hidden="true"></div>
+                <p id="loadingText">Fetching pollen data...</p>
+            </div>
+
+            <div class="results-card" id="resultsCard" aria-busy="false">
+                <div class="results-heading">
+                    <div class="location-title">
+                        <span class="location-pin" aria-hidden="true"><svg><use href="#icon-location"/></svg></span>
+                        <div>
+                            <p class="eyebrow" data-i18n="localReport">Your local pollen report</p>
+                            <h2 id="locationName"></h2>
+                        </div>
+                    </div>
+                    <p class="last-updated"><span data-i18n="displayed">Displayed</span><br><span id="lastUpdated"></span></p>
+                </div>
+                <p class="availability-note" id="availabilityNote" hidden></p>
+                <div class="list-labels" aria-hidden="true">
+                    <span data-i18n="species">Species</span>
+                    <span data-i18n="concentration">Concentration</span>
+                    <span data-i18n="risk">Risk level</span>
+                    <span data-i18n="trend">7-day samples</span>
+                </div>
+                <div class="pollen-grid" id="pollenGrid"></div>
+            </div>
+            <p class="sr-only" id="reportStatus" role="status" aria-atomic="true"></p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <span data-i18n="dataSource">Pollen data · Open-Meteo</span>
+        <span>Pollen Checker</span>
+    </footer>
+    <script src="script.js?v=2"></script>
 </body>
 </html>
