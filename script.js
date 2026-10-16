@@ -2,23 +2,48 @@ const userLang = navigator.language || navigator.userLanguage;
 let currentLang = userLang.startsWith('es') ? 'es' : 'en';
 let lastPollenData = null;
 let lastLocationName = null;
+let activeErrorKey = null;
+let errorTimeout;
 
 const translations = {
     en: {
+        skip: 'Skip to content',
+        heroEyebrow: 'A little closer to nature',
+        heroTitle: 'What are you',
+        heroAccent: 'breathing today?',
+        searchLabel: 'Find a location',
+        panelNote: 'Six pollen species. One clearer picture.',
+        localReport: 'Your local pollen report',
+        emptyTitle: 'A breath of clarity.',
+        emptyDescription: 'Search for a city or use your location to explore pollen concentrations near you.',
+        displayed: 'Displayed',
+        species: 'Species',
+        concentration: 'Concentration',
+        risk: 'Risk level',
+        trend: '7-day samples',
+        trendDescription: 'Available daily samples, oldest to newest',
+        noTrend: 'Not enough data for a trend',
+        unavailable: 'Unavailable',
+        noConcentration: 'Concentration data is unavailable for this species.',
+        partialData: 'Some concentrations are unavailable. Risk is shown only where concentration data is available.',
+        noData: 'Pollen concentrations are unavailable for this location. No risk levels can be reported.',
+        reportLoaded: 'Pollen report loaded for',
+        dataSource: 'Pollen data · Open-Meteo',
+        language: 'Language',
         subtitle: 'Check pollen levels in your area',
         placeholder: 'Enter city name...',
         search: 'Search',
         or: 'or',
-        location: '📍 Use my location',
+        location: 'Use my location',
         loading: 'Fetching pollen data...',
         yourLocation: 'Your Location',
         pollenTypes: {
-            alder_pollen: '🌾 Alder',
-            birch_pollen: '🌳 Birch',
-            grass_pollen: '🌿 Grass',
-            mugwort_pollen: '🌼 Mugwort',
-            olive_pollen: '🫚 Olive',
-            ragweed_pollen: '🌱 Ragweed'
+            alder_pollen: 'Alder',
+            birch_pollen: 'Birch',
+            grass_pollen: 'Grass',
+            mugwort_pollen: 'Mugwort',
+            olive_pollen: 'Olive',
+            ragweed_pollen: 'Ragweed'
         },
         levels: {
             low: { label: 'Low' },
@@ -74,20 +99,43 @@ const translations = {
         }
     },
     es: {
+        skip: 'Saltar al contenido',
+        heroEyebrow: 'Un poco más cerca de la naturaleza',
+        heroTitle: '¿Qué respiras',
+        heroAccent: 'hoy?',
+        searchLabel: 'Busca una ubicación',
+        panelNote: 'Seis tipos de polen. Una visión más clara.',
+        localReport: 'Tu informe local de polen',
+        emptyTitle: 'Respira con más claridad.',
+        emptyDescription: 'Busca una ciudad o usa tu ubicación para consultar las concentraciones de polen cerca de ti.',
+        displayed: 'Mostrado',
+        species: 'Especie',
+        concentration: 'Concentración',
+        risk: 'Nivel de riesgo',
+        trend: 'Muestras de 7 días',
+        trendDescription: 'Muestras diarias disponibles, de la más antigua a la más reciente',
+        noTrend: 'No hay suficientes datos para mostrar una tendencia',
+        unavailable: 'Sin datos',
+        noConcentration: 'No hay datos de concentración para esta especie.',
+        partialData: 'Algunas concentraciones no están disponibles. Solo se muestra el riesgo cuando hay datos de concentración.',
+        noData: 'No hay datos de concentración de polen para esta ubicación. No se pueden indicar niveles de riesgo.',
+        reportLoaded: 'Informe de polen cargado para',
+        dataSource: 'Datos de polen · Open-Meteo',
+        language: 'Idioma',
         subtitle: 'Consulta los niveles de polen en tu zona',
         placeholder: 'Ingresa el nombre de la ciudad...',
         search: 'Buscar',
         or: 'o',
-        location: '📍 Usar mi ubicación',
+        location: 'Usar mi ubicación',
         loading: 'Obteniendo datos de polen...',
         yourLocation: 'Tu ubicación',
         pollenTypes: {
-            alder_pollen: '🌾 Alerce',
-            birch_pollen: '🌳 Abedul',
-            grass_pollen: '🌿 Hierba',
-            mugwort_pollen: '🌼 Artemisa',
-            olive_pollen: '🫚 Olivo',
-            ragweed_pollen: '🌱 Ambrosía'
+            alder_pollen: 'Alerce',
+            birch_pollen: 'Abedul',
+            grass_pollen: 'Hierba',
+            mugwort_pollen: 'Artemisa',
+            olive_pollen: 'Olivo',
+            ragweed_pollen: 'Ambrosía'
         },
         levels: {
             low: { label: 'Bajo' },
@@ -145,16 +193,16 @@ const translations = {
 };
 
 const pollenTypes = [
-    { key: 'alder_pollen' },
-    { key: 'birch_pollen' },
-    { key: 'grass_pollen' },
-    { key: 'mugwort_pollen' },
-    { key: 'olive_pollen' },
-    { key: 'ragweed_pollen' }
+    { key: 'alder_pollen', illustration: 'branch', palette: 'green' },
+    { key: 'birch_pollen', illustration: 'branch', palette: 'blue' },
+    { key: 'grass_pollen', illustration: 'grass', palette: 'yellow' },
+    { key: 'mugwort_pollen', illustration: 'flower', palette: 'blue' },
+    { key: 'olive_pollen', illustration: 'branch', palette: 'green' },
+    { key: 'ragweed_pollen', illustration: 'grass', palette: 'yellow' }
 ];
 
 function getLevel(value) {
-    if (value === null || value === undefined) return { level: 'low', label: translations[currentLang].levels.low.label };
+    if (!Number.isFinite(value)) return { level: 'unavailable', label: translations[currentLang].unavailable };
     if (value <= 10) return { level: 'low', label: translations[currentLang].levels.low.label };
     if (value <= 30) return { level: 'moderate', label: translations[currentLang].levels.moderate.label };
     if (value <= 60) return { level: 'high', label: translations[currentLang].levels.high.label };
@@ -165,40 +213,65 @@ function setLanguage(lang) {
     currentLang = lang;
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
+        btn.setAttribute('aria-pressed', String(btn.dataset.lang === lang));
     });
     updateUIText();
 
     // Re-render results if they are currently displayed
-    if (lastPollenData && lastLocationName) {
+    if (lastPollenData && lastLocationName && document.getElementById('resultsCard').classList.contains('active')) {
         displayResults(lastPollenData, lastLocationName);
     }
 }
 
 function updateUIText() {
     const t = translations[currentLang];
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t[el.dataset.i18n];
+    });
+    document.getElementById('languageControl').setAttribute('aria-label', t.language);
+    document.getElementById('report').setAttribute('aria-label', t.localReport);
     document.getElementById('subtitle').textContent = t.subtitle;
     document.getElementById('cityInput').placeholder = t.placeholder;
-    document.getElementById('searchBtn').textContent = t.search;
     document.getElementById('or').textContent = t.or;
-    document.getElementById('locationBtn').textContent = t.location;
     document.getElementById('loadingText').textContent = t.loading;
+    if (activeErrorKey) {
+        document.getElementById('errorMessage').textContent = t.errors[activeErrorKey];
+    }
 }
 
-function showError(message) {
+function showError(key) {
     const errorEl = document.getElementById('errorMessage');
-    errorEl.textContent = message;
+    activeErrorKey = key;
+    errorEl.textContent = translations[currentLang].errors[key];
     errorEl.classList.add('active');
-    setTimeout(() => errorEl.classList.remove('active'), 5000);
+    clearTimeout(errorTimeout);
+    errorTimeout = setTimeout(() => {
+        errorEl.classList.remove('active');
+        errorEl.textContent = '';
+        activeErrorKey = null;
+    }, 5000);
 }
 
 function showLoading(show) {
     document.getElementById('loading').classList.toggle('active', show);
+    document.getElementById('resultsCard').setAttribute('aria-busy', String(show));
+    document.getElementById('searchBtn').disabled = show;
+    document.getElementById('locationBtn').disabled = show;
+    if (show) {
+        clearTimeout(errorTimeout);
+        activeErrorKey = null;
+        document.getElementById('errorMessage').classList.remove('active');
+        document.getElementById('errorMessage').textContent = '';
+        document.getElementById('reportStatus').textContent = '';
+    }
+    document.getElementById('emptyState').hidden = show || document.getElementById('resultsCard').classList.contains('active');
 }
 
 async function searchCity() {
     const city = document.getElementById('cityInput').value.trim();
     if (!city) {
-        showError(translations[currentLang].errors.enterCity);
+        showError('enterCity');
         return;
     }
 
@@ -210,7 +283,7 @@ async function searchCity() {
         const geoData = await geoResponse.json();
 
         if (!geoData.results || geoData.results.length === 0) {
-            showError(translations[currentLang].errors.cityNotFound);
+            showError('cityNotFound');
             showLoading(false);
             return;
         }
@@ -218,7 +291,7 @@ async function searchCity() {
         const location = geoData.results[0];
         await fetchPollenData(location.latitude, location.longitude, location.name);
     } catch (error) {
-        showError(translations[currentLang].errors.fetchLocation);
+        showError('fetchLocation');
         showLoading(false);
     }
 }
@@ -234,7 +307,7 @@ async function fetchPollenData(lat, lon, locationName) {
 
         displayResults(data, locationName);
     } catch (error) {
-        showError(translations[currentLang].errors.fetchPollen);
+        showError('fetchPollen');
     } finally {
         showLoading(false);
     }
@@ -254,16 +327,9 @@ function formatTimestamp() {
     }
 }
 
-function createSparkline(hourlyData, pollenKey, level) {
-    const colorMap = {
-        low: '#2E7D32',
-        moderate: '#E65100',
-        high: '#BF360C',
-        'very-high': '#C62828'
-    };
-
-    const color = colorMap[level];
+function createSparkline(hourlyData, pollenKey) {
     const values = hourlyData[pollenKey];
+    if (!Array.isArray(values)) return '';
 
     // Get last 7 days of data (one value per day at the same hour)
     const currentHour = new Date().getHours();
@@ -302,10 +368,11 @@ function createSparkline(hourlyData, pollenKey, level) {
     const lastY = height - padding - ((validValues[lastPointIndex] - min) / range) * (height - 2 * padding);
 
     return `
-        <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+        <svg class="sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="${translations[currentLang].pollenTypes[pollenKey]}: ${translations[currentLang].trend}">
+            <desc>${translations[currentLang].trendDescription}: ${validValues.join(', ')}</desc>
             <polyline
                 fill="none"
-                stroke="${color}"
+                stroke="currentColor"
                 stroke-width="1.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -315,13 +382,17 @@ function createSparkline(hourlyData, pollenKey, level) {
                 cx="${lastX}"
                 cy="${lastY}"
                 r="3"
-                fill="${color}"
+                fill="currentColor"
             />
         </svg>
     `;
 }
 
 function displayResults(data, locationName) {
+    if (!data.hourly || !Array.isArray(data.hourly.time)) {
+        throw new Error('Pollen hourly data is unavailable');
+    }
+    const t = translations[currentLang];
     document.getElementById('locationName').textContent = locationName;
     document.getElementById('lastUpdated').textContent = formatTimestamp();
     const grid = document.getElementById('pollenGrid');
@@ -336,31 +407,58 @@ function displayResults(data, locationName) {
 
     const index = currentIndex >= 0 ? currentIndex : 0;
 
+    let unavailableCount = 0;
     pollenTypes.forEach(type => {
-        const value = hourlyData[type.key][index];
+        const value = hourlyData[type.key]?.[index];
         const { level, label } = getLevel(value);
-        const typeName = translations[currentLang].pollenTypes[type.key];
-        const recommendation = translations[currentLang].recommendations[type.key][level];
-        const sparkline = createSparkline(hourlyData, type.key, level);
+        const available = level !== 'unavailable';
+        if (!available) unavailableCount++;
+        const typeName = t.pollenTypes[type.key];
+        const sparkline = createSparkline(hourlyData, type.key);
 
-        const card = document.createElement('div');
+        const card = document.createElement('article');
         card.className = `pollen-card level-${level}`;
+        card.setAttribute('aria-labelledby', `species-${type.key}`);
         card.innerHTML = `
-            <div class="pollen-type">${typeName}</div>
-            <div class="pollen-value ${level}">${value !== null ? value : 'N/A'}</div>
-            <div class="pollen-label ${level}">${label}</div>
-            ${sparkline}
-            <div class="pollen-recommendation">${recommendation}</div>
+            <div class="illustration-box botanical-${type.palette}" aria-hidden="true">
+                <svg><use href="#botanical-${type.illustration}"/></svg>
+            </div>
+            <h3 class="pollen-type" id="species-${type.key}">${typeName}</h3>
+            <div class="measurement">
+                <span class="sr-only">${t.concentration}: </span>
+                <strong class="pollen-value">${available ? value : '—'}</strong>
+                <span class="pollen-unit"></span>
+            </div>
+            <span class="pollen-label ${level}"><span class="sr-only">${t.risk}: </span>${label}</span>
+            <div class="pollen-secondary">
+                <p class="${available ? 'pollen-recommendation' : 'pollen-availability'}">${available ? t.recommendations[type.key][level] : t.noConcentration}</p>
+                <div class="card-trend">
+                    <span class="trend-label" aria-hidden="true">${t.trend}</span>
+                    ${sparkline || `<span class="trend-unavailable" role="img" aria-label="${t.noTrend}">—</span>`}
+                </div>
+            </div>
         `;
+        // API unit metadata is text, never HTML. No unit is inferred when absent.
+        const unit = data.hourly_units?.[type.key];
+        if (available && typeof unit === 'string') {
+            card.querySelector('.pollen-unit').textContent = unit === 'grains/m³'
+                ? (currentLang === 'es' ? 'granos/m³' : unit)
+                : unit;
+        }
         grid.appendChild(card);
     });
 
+    const availabilityNote = document.getElementById('availabilityNote');
+    availabilityNote.hidden = unavailableCount === 0;
+    availabilityNote.textContent = unavailableCount === pollenTypes.length ? t.noData : t.partialData;
     document.getElementById('resultsCard').classList.add('active');
+    document.getElementById('emptyState').hidden = true;
+    document.getElementById('reportStatus').textContent = `${t.reportLoaded} ${locationName}. ${unavailableCount ? availabilityNote.textContent : ''}`;
 }
 
 function useMyLocation() {
     if (!navigator.geolocation) {
-        showError(translations[currentLang].errors.noGeolocation);
+        showError('noGeolocation');
         return;
     }
 
@@ -387,15 +485,20 @@ function useMyLocation() {
             }
         },
         (error) => {
-            showError(translations[currentLang].errors.locationError);
+            showError('locationError');
             showLoading(false);
         }
     );
 }
 
-// Allow search on Enter key
-document.getElementById('cityInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') searchCity();
+// Native form submission supports both Enter and the search button, once each.
+document.getElementById('searchForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!document.getElementById('searchBtn').disabled) searchCity();
+});
+document.getElementById('locationBtn').addEventListener('click', useMyLocation);
+document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
 });
 // Initialize UI with detected language
 setLanguage(currentLang);
