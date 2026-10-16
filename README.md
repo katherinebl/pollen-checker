@@ -1,8 +1,8 @@
-# 🌼 Pollen Checker
+# 🌾 Pollen Checker
 
 Check pollen levels in your city: quick, simple, and bilingual.
 
-**[Live Demo](#)** · **[Report a Bug](https://github.com/katherinebl/pollen-checker/issues)**
+**[Live Demo](https://pollen-by-katherinebl.netlify.app/)** · **[Report a Bug](https://github.com/katherinebl/pollen-checker/issues)**
 
 ## About
 
